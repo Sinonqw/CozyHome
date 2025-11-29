@@ -3,7 +3,7 @@ import { Plus, RefreshCw } from "lucide-react";
 
 interface ProductTableControlsProps {
   productCount: number;
-  onRefresh: () => void;
+  onRefresh?: () => void;
   onAddProduct: () => void;
   isLoading: boolean;
 }
@@ -21,14 +21,14 @@ const ProductTableControls: React.FC<ProductTableControlsProps> = ({
       </h3>
       <div className="flex space-x-3">
         {/* Кнопка ручного обновления */}
-        <button
+        {/* <button 
           onClick={onRefresh}
           className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition duration-200"
           disabled={isLoading}
           title="Обновить список товаров"
         >
           <RefreshCw className={`w-5 h-5 ${isLoading ? "animate-spin" : ""}`} />
-        </button>
+        </button> */}
         {/* Кнопка открывает модальное окно */}
         <button
           onClick={onAddProduct}

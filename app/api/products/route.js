@@ -1,16 +1,14 @@
 import { NextResponse } from "next/server";
 import Product from "@/models/Product";
 import connectDB from "@/lib/mongoose";
+import { checkAdminAuthorization } from "@/lib/auth";
 
 export async function GET() {
   try {
-    // 1. Встановлення з'єднання (Mongoose автоматично керує кешуванням)
     await connectDB();
 
-    // 2. Використання Mongoose для запиту
     const products = await Product.find({});
 
-    // 3. Повернення відповіді
     return NextResponse.json(products, { status: 200 });
   } catch (error) {
     console.error("Помилка при отриманні продуктів:", error);
@@ -22,6 +20,11 @@ export async function GET() {
 }
 
 export async function POST(request) {
+  const authResponse = await checkAdminAuthorization();
+  if (authResponse) {
+    return authResponse;
+  }
+
   try {
     const body = await request.json();
     const { name, description, priceUSD, imageUrl, count } = body;
@@ -61,6 +64,11 @@ export async function POST(request) {
 }
 
 export async function DELETE(request) {
+  const authResponse = await checkAdminAuthorization();
+  if (authResponse) {
+    return authResponse;
+  }
+
   try {
     const body = await request.json();
 
@@ -84,7 +92,7 @@ export async function DELETE(request) {
     return NextResponse.json(deletedProduct, { status: 200 });
   } catch (e) {
     console.error(e);
-    return NextResponse(
+    return NextResponse.json(
       { error: "Виникла помилка на сервері при видаленнi продукту" },
       { status: 500 }
     );
@@ -92,6 +100,11 @@ export async function DELETE(request) {
 }
 
 export async function PATCH(request) {
+  const authResponse = await checkAdminAuthorization();
+  if (authResponse) {
+    return authResponse;
+  }
+
   try {
     const body = await request.json();
 

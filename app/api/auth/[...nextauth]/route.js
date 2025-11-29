@@ -1,10 +1,11 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import connectDB from "../../../../lib/mongoose";
-import User from "../../../../models/User";
+import connectDB from "@/lib/mongoose";
+import User from "@/models/User";
 import bcrypt from "bcryptjs";
 
-const authOptions = {
+
+export const authOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -41,12 +42,14 @@ const authOptions = {
     async jwt({token, user}) {
       if(user){
         token.role = user.role;
+        token.id = user.id;
       }
       return token;
     },
     async session({session, token}){
       if(session.user){
         session.user.role = token.role;
+        session.user.id = token.id;
       }
       return session;
     }

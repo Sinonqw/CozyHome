@@ -1,17 +1,23 @@
 "use client";
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import AuthForm from "@/components/Auth/AuthForm";
 
-export default function SignInPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+type AuthMode = "signin" | "signup";
+
+export default function AuthPage() {
+  const [mode, setMode] = useState<AuthMode>("signin");
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError("");
+  const isSignInMode = mode === "signin";
+  const title = isSignInMode ? "Вхід" : "Реєстрація";
+
+  const handleSignIn = async (email: string, password: string) => {
+    setIsLoading(true);
+    setError(null);
 
     const result = await signIn("credentials", {
       redirect: false,
@@ -19,71 +25,111 @@ export default function SignInPage() {
       password,
     });
 
-    if (result) {
-      if (result.error) {
-        setError("Невірний email або пароль.");
+    setIsLoading(false);
+
+    if (result?.error) {
+      setError("Невірний email або пароль.");
+    } else {
+      router.push("/");
+    }
+  };
+
+  const handleRegister = async (
+    email: string,
+    password: string,
+    name?: string
+  ) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      if (!name) {
+        throw new Error("Ім'я обов'язкове для реєстрації.");
+      }
+
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Не вдалося створити користувача.");
+      }
+
+      const signInResult = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+      });
+
+      setIsLoading(false);
+
+      if (signInResult?.error) {
+        setError(
+          "Акаунт створено, але не вдалося увійти автоматично. Спробуйте вручну."
+        );
       } else {
         router.push("/");
       }
-    } else {
-      setError("Не вдалося виконати вхід. Спробуйте пізніше.");
+    } catch (e) {
+      setIsLoading(false);
+      setError(
+        (e as Error).message || "Виникла невідома помилка під час реєстрації."
+      );
     }
   };
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-[#FBF0E6]">
       <div className="p-8 bg-white rounded-lg shadow-xl w-full max-w-md">
         <h1 className="text-3xl font-serif text-center text-[#261C1A] mb-6">
-          Вхід
+          {title}
         </h1>
 
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
-            {error}
-          </div>
-        )}
+        <AuthForm
+          type={mode}
+          onSubmit={isSignInMode ? handleSignIn : handleRegister}
+          isLoading={isLoading}
+          error={error}
+        />
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="email"
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              required
-            />
-          </div>
-          <div className="mb-6">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="password"
-            >
-              Пароль
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-              required
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <button
-              type="submit"
-              className="bg-[#7C5840] hover:bg-[#261C1A] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-150"
-            >
-              Увійти
-            </button>
-          </div>
-        </form>
+        {/* Переключатель между Входом и Регистрацией */}
+        <div className="mt-6 text-center text-[#261C1A]">
+          {isSignInMode ? (
+            <>
+              Немає акаунту?{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("signup");
+                  setError(null);
+                }}
+                className="text-[#7C5840] hover:text-[#261C1A] font-bold transition duration-150"
+              >
+                Зареєструватися
+              </button>
+            </>
+          ) : (
+            <>
+              Вже є акаунт?{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("signin");
+                  setError(null);
+                }}
+                className="text-[#7C5840] hover:text-[#261C1A] font-bold transition duration-150"
+              >
+                Увійти
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
 "use client";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, steps } from "framer-motion";
 import { X } from "lucide-react";
-import { useMobileMenu } from "@/context/MobileMenuContext";
+import { useMobileMenuStore } from "@/store/mobileMenuStore";
 import AdminButton from "./AdminButton";
 
 import { NavLink } from "./Header";
@@ -13,7 +13,12 @@ interface MobileMenuProps {
 }
 
 const MobileSidebar = ({ NAV_LINKS }: MobileMenuProps) => {
-  const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu();
+  const isMobileMenuOpen = useMobileMenuStore(
+    (state) => state.isMobileMenuOpen
+  );
+  const setIsMobileMenuOpen = useMobileMenuStore(
+    (state) => state.setIsMobileMenuOpen
+  );
 
   const sidebarVariants = {
     closed: { x: "100%", transition: { duration: 0.3 } },
@@ -86,8 +91,8 @@ const MobileSidebar = ({ NAV_LINKS }: MobileMenuProps) => {
             </li>
           ))}
         </ul>
-        <AdminButton className="mt-6"/>
-        <AuthButtons className="mt-4"/>
+        <AdminButton className="mt-6" />
+        <AuthButtons className="mt-4" />
 
         {/* Додатковий елемент */}
         <div className="mt-auto pt-6 border-t border-[#E5C8AA]">

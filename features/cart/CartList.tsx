@@ -1,4 +1,4 @@
-import CartItem from "@/features/CartItem";
+import CartItem from "@/features/cart/CartItem";
 
 export interface ProductInCart {
   id: string;

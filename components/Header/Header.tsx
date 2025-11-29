@@ -4,7 +4,7 @@ import { Menu } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import CartBTN from "./CartBTN";
 import DesktopMenu from "./DesktopMenu";
-import { useMobileMenu } from "@/context/MobileMenuContext";
+import { useMobileMenuStore } from "@/store/mobileMenuStore";
 import MobileSidebar from "./MobileMenu";
 
 export interface NavLink {
@@ -19,7 +19,12 @@ const NAV_LINKS: NavLink[] = [
 ];
 
 const Header = () => {
-  const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu();
+  const isMobileMenuOpen = useMobileMenuStore(
+    (state) => state.isMobileMenuOpen
+  );
+  const setIsMobileMenuOpen = useMobileMenuStore(
+    (state) => state.setIsMobileMenuOpen
+  );
 
   return (
     <header

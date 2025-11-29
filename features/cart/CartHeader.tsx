@@ -1,5 +1,4 @@
-import React from "react";
-import ButtonClose from "../components/ui/ButtonClose";
+import ButtonClose from "../../components/ui/ButtonClose";
 
 interface CartHeaderProps {
   onClose: () => void;

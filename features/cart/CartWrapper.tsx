@@ -2,7 +2,7 @@
 
 import { AnimatePresence } from "framer-motion";
 import CartSidebar from "@/components/CartSidebar";
-import { useCart } from "@/context/CartContext";
+import { useCartStore } from "@/store/cartStore";
 
 const CartWrapper = () => {
   const {
@@ -11,7 +11,9 @@ const CartWrapper = () => {
     setShowCart,
     onRemoveProduct,
     updateQuantity,
-  } = useCart();
+    checkoutCart,
+    addProduct,
+  } = useCartStore();
 
   return (
     <AnimatePresence>
@@ -22,6 +24,7 @@ const CartWrapper = () => {
           onClose={() => setShowCart(false)}
           onRemoveProduct={onRemoveProduct}
           onUpdateQuantity={updateQuantity}
+          onCheckout={checkoutCart}
         />
       )}
     </AnimatePresence>

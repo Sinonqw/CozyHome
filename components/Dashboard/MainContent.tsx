@@ -1,7 +1,7 @@
 import React from "react";
 import ProductsSection from "./content/products/ProductsSection";
-import OrdersSection from "./content/OrdersSection";
-import AnalyticsSection from "./content/AnalyticsSection";
+import OrdersSection from "./content/orders/OrdersSection";
+import AnalyticsSection from "./content/analytics/AnalyticsSection";
 import UsersSection from "./content/UsersSection";
 
 interface MainContentProps {

@@ -1,7 +1,7 @@
 "use client";
 import Button from "../ui/Button";
-import { motion, Variants } from "framer-motion";
-import { useCart } from "@/context/CartContext";
+import { motion, steps, Variants } from "framer-motion";
+import { useCartStore } from "@/store/cartStore";
 import { ShoppingCart, Check } from "lucide-react";
 import { useState } from "react";
 
@@ -14,8 +14,8 @@ export interface IProductCard {
 }
 
 const ProductCard = ({ title, desc, cost, id, itemVariants }: IProductCard) => {
-  const { addProduct } = useCart();
-  
+  const addProduct = useCartStore((state) => state.addProduct);
+
   const price = cost || 0;
 
   const [isAdding, setIsAdding] = useState(false);

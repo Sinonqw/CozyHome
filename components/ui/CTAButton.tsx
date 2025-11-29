@@ -1,7 +1,24 @@
-const CTAButton = () => {
+import { ReactNode } from "react";
+
+interface CTAButtonProps {
+  children: ReactNode;
+  onClick: () => void | Promise<void>;
+  disabled?: boolean;
+}
+
+const CTAButton = ({ children, onClick, disabled = false }: CTAButtonProps) => {
   return (
-    <button className="w-full py-3 bg-[#7C5840] text-[#FBF0E6] font-bold rounded-lg hover:bg-[#261C1A] transition duration-300">
-      Оформить заказ
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`w-full py-3 font-bold rounded-lg transition duration-300 
+        ${
+          disabled
+            ? "bg-gray-400 text-gray-700 cursor-not-allowed" 
+            : "bg-[#7C5840] text-[#FBF0E6] hover:bg-[#261C1A]" 
+        }`}
+    >
+      {children}
     </button>
   );
 };

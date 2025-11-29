@@ -20,7 +20,6 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-// Запобігання помилці перезапису моделі (Mongoose Singleton)
 const User = mongoose.models.User || mongoose.model("User", userSchema);
 
 export default User;

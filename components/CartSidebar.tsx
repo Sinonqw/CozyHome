@@ -1,11 +1,13 @@
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
+import { useSession } from "next-auth/react";
 
 import Overlay from "./ui/Overlay";
-import CartHeader from "@/features/CartHeader";
-import CartFooter from "@/features/CartFooter";
-import CartList, { ProductInCart } from "@/features/CartList";
+import CartHeader from "@/features/cart/CartHeader";
+import CartFooter from "@/features/cart/CartFooter";
+import CartList, { ProductInCart } from "@/features/cart/CartList";
+import { IOrder, OrderStatus } from "@/types/orders";
 
 interface CartSidebarProps {
   isOpen: boolean;
@@ -13,6 +15,7 @@ interface CartSidebarProps {
   items: ProductInCart[];
   onRemoveProduct: (productId: string) => void;
   onUpdateQuantity: (productId: string, quantity: number) => void;
+  onCheckout: (orderData: Omit<IOrder, "_id" | "createdAt">) => Promise<void>;
 }
 
 const CartSidebar: React.FC<CartSidebarProps> = ({
@@ -21,20 +24,73 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
   items,
   onRemoveProduct,
   onUpdateQuantity,
+  onCheckout,
 }) => {
+  // ✅ ИСПОЛЬЗОВАНИЕ: Получаем данные сессии
+  const { data: session, status } = useSession(); 
+  const isAuthenticated = status === 'authenticated';
+
   const totalCost = items.reduce((sum, item) => {
     const quantity = item.quantity && item.quantity > 0 ? item.quantity : 1;
     return sum + item.price * quantity;
   }, 0);
 
+  const createOrderData = () => {
+    
+    // 💡 ИСПОЛЬЗУЕМ: ID пользователя из сессии.
+    const userId = session?.user?.id; 
+    
+    // 💡 ИСПОЛЬЗУЕМ: Имя пользователя из сессии.
+    const clientName = session?.user?.name || (isAuthenticated ? "Авторизованный пользователь" : "Гость (Не авторизован)");
+
+    // ✅ ИСПРАВЛЕНИЕ: Проверяем, что ID пользователя действительно существует,
+    // прежде чем формировать Payload.
+    if (!userId) { 
+        // Если ID отсутствует, это должно быть обработано как ошибка
+        throw new Error("User ID is missing. Order cannot be placed without authentication.");
+    }
+    
+    const orderItems = items.map((item) => ({
+      productId: item.id,
+      productName: item.name,
+      quantity: item.quantity && item.quantity > 0 ? item.quantity : 1,
+    }));
+
+    return {
+      userId: userId, // ✅ Реальный ID (валидный ObjectId string)
+      clientName: clientName, // ✅ Реальное имя
+      totalAmount: totalCost,
+      status: "pending" as OrderStatus,
+      products: orderItems,
+    };
+  };
+
+  const handleCheckoutClick = async () => {
+    if (!isAuthenticated) {
+        // Можно показать модальное окно с просьбой войти в систему
+        console.warn("Пользователь не авторизован. Невозможно оформить заказ.");
+        // Здесь можно вызвать signIn()
+        return;
+    }
+    
+    try {
+        const orderPayload = createOrderData();
+        await onCheckout(orderPayload);
+        onClose();
+    } catch (e) {
+        console.error("Ошибка при подготовке заказа:", (e as Error).message);
+        // Дополнительная обработка ошибок, например, показ уведомления пользователю
+    }
+  };
+
   return (
     <>
       <motion.div
-        initial={{ opacity: 0 }} 
-        animate={{ opacity: 1 }} 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.3, ease: "easeOut" }} 
-        className="fixed inset-0 z-40" 
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="fixed inset-0 z-40"
       >
         <Overlay onClose={onClose} />
       </motion.div>
@@ -72,7 +128,13 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
         </div>
 
         {/* Футер корзины (Сумма и кнопка оформления) */}
-        <CartFooter totalCost={totalCost} />
+        <CartFooter 
+            totalCost={totalCost} 
+            onCheckout={handleCheckoutClick}
+            // Отключаем кнопку, если пользователь не аутентифицирован
+            isDisabled={!isAuthenticated} 
+            authStatus={status} 
+        />
       </motion.div>
     </>
   );

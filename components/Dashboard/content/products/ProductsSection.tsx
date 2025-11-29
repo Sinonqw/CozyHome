@@ -108,11 +108,13 @@ const ProductsSection: React.FC = () => {
   const handleToggleDraft = async (id: string, isDraft: boolean) => {
     try {
       await api.patch("/api/products", { id, isDraft: !isDraft });
-      globalMutate("/api/products", undefined, { revalidate: true }); 
+      globalMutate("/api/products", undefined, { revalidate: true });
       setMessage(`✅ Статус товара успешно изменен`);
     } catch (e: unknown) {
       console.error("Ошибка обновления статуса черновика:", e);
       setMessage(`❌ Ошибка при изменении статуса`);
+    } finally{
+      setTimeout(() => setMessage(""), 5000)
     }
   };
 
@@ -140,7 +142,6 @@ const ProductsSection: React.FC = () => {
       <ProductTableControls
         isLoading={loading}
         onAddProduct={() => setIsModalOpen(true)}
-        onRefresh={() => revalidateProducts()}
         productCount={productData.length}
       />
 

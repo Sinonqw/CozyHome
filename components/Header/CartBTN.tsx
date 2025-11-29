@@ -1,9 +1,11 @@
 import Button from "../ui/Button";
 import { ShoppingBag } from "lucide-react";
-import { useCart } from "@/context/CartContext";
+import { useCartStore } from "@/store/cartStore";
 
 const CartBTN = () => {
-  const { productsInCart, setShowCart } = useCart();
+  const productsInCart = useCartStore((state) => state.productsInCart);
+  const setShowCart = useCartStore((state) => state.setShowCart);
+
   return (
     <Button
       onClick={() => setShowCart(true)}
