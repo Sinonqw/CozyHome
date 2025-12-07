@@ -2,7 +2,6 @@ import { create } from "zustand";
 
 interface MobileMenuState {
   isMobileMenuOpen: boolean;
-
   setIsMobileMenuOpen: (isOpen: boolean) => void;
   toggleMobileMenu: () => void;
 }

@@ -2,10 +2,10 @@
 import { ReactNode } from "react";
 import SWRProvider from "@/components/SWRProvider";
 import { SessionProvider } from "next-auth/react";
-import Header from "@/components/Header/Header";
-import Footer from "@/components/Footer/Footer";
+import Header from "@/components/client/sections/Header/Header";
+import Footer from "@/components/client/sections/Footer/Footer";
 import { usePathname } from "next/navigation";
-import CartWrapper from "@/features/cart/CartWrapper";
+import CartWrapper from "@/components/client/cart/CartWrapper";
 
 export default function Providers({ children }: { children: ReactNode }) {
   const pathname = usePathname();

@@ -18,11 +18,10 @@ export default withAuth(
         return NextResponse.rewrite(new URL("/", req.url));
       }
 
-      if (pathname.startsWith("/auth") && req.nextauth.token) {
-        return NextResponse.redirect(new URL("/", req.url));
-      }
-
       return NextResponse.next();
+    }
+    if (pathname.startsWith("/auth") && req.nextauth.token) {
+      return NextResponse.redirect(new URL("/", req.url));
     }
   },
   {
